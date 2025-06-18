@@ -126,8 +126,8 @@ for (const binding of bindings) {
 
 		// Copy wasm artifact
 		fs.copyFileSync(
-			path.join(binding, "rspack.wasm32-wasi.wasm"),
-			path.join(output, "rspack.wasm32-wasi.wasm")
+			path.join(binding, "onecoc.wasm32-wasi.wasm"),
+			path.join(output, "onecoc.wasm32-wasi.wasm")
 		);
 
 		// Copy wasm js runtimes from the node_binding crate
@@ -136,8 +136,8 @@ for (const binding of bindings) {
 			"../crates/node_binding/"
 		);
 		for (const file of [
-			"rspack.wasi.cjs",
-			"rspack.wasi-browser.js",
+			"onecoc.wasi.cjs",
+			"onecoc.wasi-browser.js",
 			"wasi-worker.mjs",
 			"wasi-worker-browser.mjs"
 		]) {
@@ -179,7 +179,7 @@ for (const binding of bindings) {
 	} = parseTriple(name.slice(9));
 	assert(
 		file.split(".")[1] === platformArchABI,
-		`Binding is not matched with triple (expected: rspack.${platformArchABI}.node, got: ${file})`
+		`Binding is not matched with triple (expected: onecoc.${platformArchABI}.node, got: ${file})`
 	);
 
 	// <absolute-path-to-npm>/linux-x64-musl
@@ -192,11 +192,11 @@ for (const binding of bindings) {
 		path.resolve(__dirname, "../packages/rspack/package.json")
 	);
 	const pkgJson = {};
-	pkgJson.name = `@rspack/binding-${platformArchABI}`;
+	pkgJson.name = `@onecocjs/binding-${platformArchABI}`;
 	pkgJson.version = coreJson.version;
 	pkgJson.license = coreJson.license;
-	pkgJson.description = "Node binding for rspack";
-	pkgJson.main = `rspack.${platformArchABI}.node`;
+	pkgJson.description = "Node binding for onecoc";
+	pkgJson.main = `onecoc.${platformArchABI}.node`;
 	pkgJson.homepage = coreJson.homepage;
 	pkgJson.bugs = coreJson.bugs;
 	pkgJson.repository = coreJson.repository;

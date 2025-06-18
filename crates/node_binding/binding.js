@@ -204,7 +204,7 @@ switch (platform) {
 
 if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
   try {
-    nativeBinding = require('./rspack.wasi.cjs')
+    nativeBinding = require('./onecoc.wasi.cjs')
   } catch (e) {
     if (process.env.NAPI_RS_FORCE_WASI) {
       loadError = e

@@ -33,7 +33,7 @@
     "build:binding:dev": "pnpm --filter @rspack/binding run build:dev",
     "build:binding:debug": "pnpm --filter @rspack/binding run build:debug",
     "build:binding:ci": "pnpm --filter @rspack/binding run build:ci",
-    "build:binding:release": "pnpm --filter @rspack/binding run build:release",
+    "build:binding:release": "pnpm --filter @onecocjs/binding run build:release",
     "build:binding:profiling": "pnpm --filter @rspack/binding run build:profiling",
     "prepare": "is-ci || husky",
     "test:diff": "pnpm --filter \"@rspack/*\" test:diff",
@@ -63,7 +63,6 @@
     "@jest/reporters": "29.7.0",
     "@microsoft/api-extractor": "7.52.8",
     "@microsoft/api-extractor-model": "7.30.6",
-    "@rspack/cli": "workspace:*",
     "@taplo/cli": "^0.7.0",
     "@types/is-ci": "^3.0.4",
     "@types/jest": "29.5.14",
@@ -88,7 +87,6 @@
   "pnpm": {
     "patchedDependencies": {
       "graceful-fs": "patches/graceful-fs.patch",
-      "rollup-plugin-dts": "patches/rollup-plugin-dts.patch",
       "webpack-sources@3.3.2": "patches/webpack-sources@3.3.2.patch"
     },
     "onlyBuiltDependencies": [

@@ -177,7 +177,7 @@ jobs:
         if: ${{ inputs.target == 'wasm32-wasip1-threads' }}
         run: |
           unset CC_x86_64_unknown_linux_gnu && unset CC # for jemallocator to compile
-          DISABLE_PLUGIN=1 RUST_TARGET=wasm32-wasip1-threads pnpm --filter @rspack/binding build:${{ inputs.profile }}
+          DISABLE_PLUGIN=1 RUST_TARGET=wasm32-wasip1-threads pnpm --filter @onecocjs/binding build:${{ inputs.profile }}
 
       - name: Upload artifact
         uses: ./.github/actions/artifact/upload
@@ -186,4 +186,4 @@ jobs:
           path: |
             crates/node_binding/*.node
             crates/node_binding/*.d.ts
-            crates/node_binding/rspack.wasm32-wasi.wasm
+            crates/node_binding/onecoc.wasm32-wasi.wasm
