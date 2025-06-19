@@ -445,6 +445,7 @@ export interface BuiltinPlugin {
 }
 
 export declare enum BuiltinPluginName {
+  DemoPlugin = 'DemoPlugin',
   DefinePlugin = 'DefinePlugin',
   ProvidePlugin = 'ProvidePlugin',
   BannerPlugin = 'BannerPlugin',
@@ -1805,6 +1806,10 @@ export interface RawCssModuleParserOptions {
 export interface RawCssParserOptions {
   namedExports?: boolean
   url?: boolean
+}
+
+export interface RawDemoPluginOptions {
+  name: string
 }
 
 export interface RawDllEntryPluginOptions {

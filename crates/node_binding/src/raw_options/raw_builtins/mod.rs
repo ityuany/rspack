@@ -4,6 +4,7 @@ mod raw_bundle_info;
 mod raw_circular_dependency;
 mod raw_copy;
 mod raw_css_extract;
+mod raw_demo;
 mod raw_dll;
 mod raw_html;
 mod raw_http_uri;
@@ -41,6 +42,7 @@ use rspack_plugin_context_replacement::ContextReplacementPlugin;
 use rspack_plugin_copy::{CopyRspackPlugin, CopyRspackPluginOptions};
 use rspack_plugin_css::CssPlugin;
 use rspack_plugin_css_chunking::CssChunkingPlugin;
+use rspack_plugin_demo::DemoPlugin;
 use rspack_plugin_devtool::{
   EvalDevToolModulePlugin, EvalSourceMapDevToolPlugin, SourceMapDevToolModuleOptionsPlugin,
   SourceMapDevToolModuleOptionsPluginOptions, SourceMapDevToolPlugin,
@@ -117,7 +119,8 @@ use self::{
   raw_size_limits::RawSizeLimitsPluginOptions,
 };
 use crate::{
-  entry::JsEntryPluginOptions, plugins::JsLoaderRspackPlugin, JsLoaderRunnerGetter,
+  entry::JsEntryPluginOptions, plugins::JsLoaderRspackPlugin,
+  raw_options::raw_builtins::raw_demo::RawDemoPluginOptions, JsLoaderRunnerGetter,
   RawContextReplacementPluginOptions, RawDynamicEntryPluginOptions,
   RawEvalDevToolModulePluginOptions, RawExternalItemWrapper, RawExternalsPluginOptions,
   RawHttpExternalsRspackPluginOptions, RawRsdoctorPluginOptions, RawRstestPluginOptions,
@@ -128,6 +131,7 @@ use crate::{
 #[derive(Debug)]
 pub enum BuiltinPluginName {
   // webpack also have these plugins
+  DemoPlugin,
   DefinePlugin,
   ProvidePlugin,
   BannerPlugin,
@@ -235,7 +239,6 @@ impl<'a> BuiltinPlugin<'a> {
     plugins: &mut Vec<BoxPlugin>,
   ) -> napi::Result<()> {
     match self.name {
-      // webpack also have these plugins
       BuiltinPluginName::DefinePlugin => {
         let plugin = DefinePlugin::new(
           downcast_into(self.options)
@@ -564,8 +567,6 @@ impl<'a> BuiltinPlugin<'a> {
         .boxed();
         plugins.push(plugin)
       }
-
-      // rspack specific plugins
       BuiltinPluginName::HttpExternalsRspackPlugin => {
         let plugin_options = downcast_into::<RawHttpExternalsRspackPluginOptions>(self.options)
           .map_err(|report| napi::Error::from_reason(report.to_string()))?;
@@ -728,6 +729,11 @@ impl<'a> BuiltinPlugin<'a> {
         let options = downcast_into::<CssChunkingPluginOptions>(self.options)
           .map_err(|report| napi::Error::from_reason(report.to_string()))?;
         plugins.push(CssChunkingPlugin::new(options.into()).boxed());
+      }
+      BuiltinPluginName::DemoPlugin => {
+        let options = downcast_into::<RawDemoPluginOptions>(self.options)
+          .map_err(|report| napi::Error::from_reason(report.to_string()))?;
+        plugins.push(DemoPlugin::new(options.into()).boxed());
       }
     }
     Ok(())

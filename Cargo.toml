@@ -163,6 +163,7 @@ rspack_plugin_externals                = { version = "0.2.0", path = "crates/rsp
 rspack_plugin_extract_css              = { version = "0.2.0", path = "crates/rspack_plugin_extract_css" }
 rspack_plugin_hmr                      = { version = "0.2.0", path = "crates/rspack_plugin_hmr" }
 rspack_plugin_html                     = { version = "0.2.0", path = "crates/rspack_plugin_html" }
+rspack_plugin_demo                     = { version = "0.2.0", path = "crates/rspack_plugin_demo" }
 rspack_plugin_ignore                   = { version = "0.2.0", path = "crates/rspack_plugin_ignore" }
 rspack_plugin_javascript               = { version = "0.2.0", path = "crates/rspack_plugin_javascript" }
 rspack_plugin_json                     = { version = "0.2.0", path = "crates/rspack_plugin_json" }
