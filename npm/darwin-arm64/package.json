@@ -1,6 +1,6 @@
 {
   "name": "@onecocjs/binding-darwin-arm64",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "license": "MIT",
   "description": "Node binding for rspack",
   "main": "rspack.darwin-arm64.node",
