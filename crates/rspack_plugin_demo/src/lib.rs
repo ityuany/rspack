@@ -1,9 +1,13 @@
+use std::{collections::HashMap, fs, path::PathBuf, time::Instant};
+
+use package_json_parser::PackageJsonParser;
 use rspack_core::{
-  rspack_sources::SourceExt, ApplyContext, CompilationProcessAssets, CompilerEmit, CompilerOptions,
-  Plugin, PluginContext,
+  rspack_sources::SourceExt, ApplyContext, CompilationFinishModules, CompilationProcessAssets,
+  CompilationSeal, CompilerEmit, CompilerOptions, Plugin, PluginContext,
 };
 use rspack_error::Result;
 use rspack_hook::{plugin, plugin_hook};
+use up_finder::UpFinder;
 
 #[plugin]
 #[derive(Debug)]
@@ -37,8 +41,8 @@ impl Plugin for DemoPlugin {
     _ctx
       .context
       .compilation_hooks
-      .process_assets
-      .tap(process_assets::new(self));
+      .seal
+      .tap(finish_modules::new(self));
 
     Ok(())
   }
@@ -56,64 +60,79 @@ impl Plugin for DemoPlugin {
 
   // fn clear_cache(&self, _id: CompilationId) {}
 }
-#[plugin_hook(CompilationProcessAssets for DemoPlugin)]
-async fn process_assets(&self, compilation: &mut rspack_core::Compilation) -> Result<()> {
+
+#[plugin_hook(CompilationSeal for DemoPlugin)]
+async fn finish_modules(&self, compilation: &mut rspack_core::Compilation) -> Result<()> {
+  let start_time = Instant::now();
   println!(
     "🎯 DemoPlugin emit 钩子被触发！插件名称: {}",
     self.options.name
   );
 
-  // 优化：减少asset操作的复杂度
-  let mut assets_to_modify = Vec::new();
-
-  let mut dep_str = String::new();
+  let mut package_json_map: HashMap<String, HashMap<String, i32>> = HashMap::new();
 
   let module_graph = compilation.get_module_graph();
   for (_module_identifier, module) in module_graph.modules().iter() {
     if module.module_type().is_js_like() {
       let readable_name = module.readable_identifier(&compilation.options.context);
-      println!("🟨 JS模块: {}", readable_name);
-      dep_str.push_str(&format!("{}\n", readable_name));
+      let path = PathBuf::from(readable_name.to_string());
+      let dir = path.parent().unwrap();
+      // println!("🟨 JS模块: {}", readable_name);
+      let find_up = UpFinder::builder()
+        .cwd(dir) // Start from the src directory
+        .build();
+      let paths = find_up.find_up("package.json");
+      if !paths.is_empty() {
+        let first = paths.first().unwrap();
+
+        if let Ok(package_json) = PackageJsonParser::parse(first) {
+          let name = package_json
+            .name
+            .map(|n| n.0.to_string())
+            .unwrap_or("unknown_name".to_string());
+          let version = package_json
+            .version
+            .map(|v| v.0.to_string())
+            .unwrap_or("unknown_version".to_string());
+
+          if let Some(v_map) = package_json_map.get_mut(&name) {
+            if let Some(v) = v_map.get_mut(&version) {
+              *v += 1;
+            } else {
+              v_map.insert(version.clone(), 1);
+            }
+          } else {
+            let mut v_map: HashMap<String, i32> = HashMap::new();
+            v_map.insert(version.clone(), 1);
+            package_json_map.insert(name.clone(), v_map);
+          }
+        }
+
+        // println!(
+        //   "🟨 package.json: {}@{}",
+        //   package_json.name.unwrap().0,
+        //   package_json.version.unwrap().0
+        // );
+      }
+      // println!("🟨 package.json: {:#?}", paths);
     }
   }
 
-  for (filename, _) in compilation.assets().iter() {
-    if filename.ends_with(".js") {
-      println!("🎯 修改的文件: {}", filename);
-      assets_to_modify.push(filename.clone());
-      break; // 只修改第一个
+  for (name, v_map) in package_json_map.iter() {
+    if v_map.keys().len() > 1 {
+      println!("🟨 发现重复的包: {}", name);
+      for (version, count) in v_map.iter() {
+        println!("{:width$}{:width$}", name, version, width = 30);
+      }
+      println!("");
     }
   }
 
-  let stats = compilation.get_stats();
-  let (a, _) = stats.get_assets();
-
-  let mut str = String::new();
-
-  for f in a.iter() {
-    str.push_str(&format!("{}:{}kb\n", f.name, f.size / 1024.0));
-  }
-
-  let demo_message = format!(
-    r#"
-    /* DemoPlugin 生成的注释 - 插件名称: {} 
-    dep_str:{}
-    {}
-    */"#,
-    self.options.name, dep_str, str
-  );
-
-  for filename in assets_to_modify {
-    compilation.update_asset(&filename, |source, info| {
-      let current_content = source.source().to_string();
-      let new_content = format!("{}{}{}", demo_message, current_content, "\nconst b = 12;");
-      // let new_content = format!("{}{}", demo_message, current_content);
-      let new_source = rspack_core::rspack_sources::RawSource::from(new_content).boxed();
-      Ok((new_source, info))
-    })?;
-  }
+  // let stats = compilation.get_stats();
+  // let (a, _) = stats.get_assets();
 
   // 显式提示完成
   println!("demo plugin processAssets completed");
+  println!("🟨 耗时: {:?}", start_time.elapsed());
   Ok(())
 }

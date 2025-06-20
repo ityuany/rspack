@@ -28,6 +28,9 @@ ignored = [
   "rspack",
 ]
 [workspace.dependencies]
+up_finder = "0.0.2"
+package_json_parser = "0.0.7"
+
 anyhow             = { version = "1.0.95", features = ["backtrace"] }
 anymap             = { package = "anymap3", version = "1.0.1" }
 async-recursion    = { version = "1.1.1" }
