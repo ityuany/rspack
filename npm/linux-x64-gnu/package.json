@@ -1,6 +1,6 @@
 {
   "name": "@onecocjs/binding-linux-x64-gnu",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "description": "Node binding for rspack",
   "main": "rspack.linux-x64-gnu.node",
